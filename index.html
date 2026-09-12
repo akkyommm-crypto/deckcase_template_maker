@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>デッキケース展開図メーカー v4.8</title>
+<title>デッキケース展開図メーカー v4.9.3.1</title>
 <style id="pageStyle">@page{size:210mm 297mm;margin:0}</style>
 <style>
 :root{--bg:#f3f4f6;--panel:#fff;--ink:#111827;--muted:#6b7280;--line:#d1d5db;--sel:#2563eb}
@@ -65,26 +65,38 @@ body.workspaceMode .toolbar .sizeText,body.workspaceMode .legend{display:none!im
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="sidebarHead"><h1>デッキケース展開図メーカー v4.8</h1><button id="sidebarCloseBtn" type="button" class="viewBtn sidebarCloseBtn">閉じる</button></div>
-  <div class="sub">上段左右＝完成時の外側面。下段左右＝内側のりしろ。コーナータブ＝その中間に入る構造です。</div>
+  <div class="sidebarHead"><h1>デッキケース展開図メーカー v4.9.3</h1><button id="sidebarCloseBtn" type="button" class="viewBtn sidebarCloseBtn">閉じる</button></div>
+  <div class="sub">上段左右＝完成時の外側面。下段左右＝内側のりしろ。コーナータブ＝その中間に入る構造です。v4.9では、厚いデッキ向けに「下フラップなし＋上フラップ差し込み式」を採用しています。</div>
 
   <div class="section">
     <h2>1. 完成サイズ</h2>
     <div class="grid3">
-      <div><label>横幅 W (mm)</label><input id="boxW" type="number" min="10" step="0.1" value="70"></div>
-      <div><label>高さ H (mm)</label><input id="boxH" type="number" min="10" step="0.1" value="95"></div>
-      <div><label>奥行 D (mm)</label><input id="boxD" type="number" min="3" step="0.1" value="34"></div>
+      <div><label>横幅 W (mm)</label><input id="boxW" type="number" min="10" step="0.1" value="73"></div>
+      <div><label>高さ H (mm)</label><input id="boxH" type="number" min="10" step="0.1" value="100"></div>
+      <div><label>奥行 D (mm)</label><input id="boxD" type="number" min="3" step="0.1" value="53"></div>
     </div>
   </div>
 
   <div class="section">
-    <h2>2. のりしろ</h2>
+    <h2>2. 差し込みフタ</h2>
+    <div class="grid2">
+      <div><label>差し込みベロ長さ (mm)</label><input id="tuckLen" type="number" min="8" step="0.1" value="14"></div>
+      <div><label>ベロ先端の絞り (mm)</label><input id="tuckInset" type="number" min="0" step="0.1" value="3"></div>
+    </div>
+    <div class="small" style="margin-top:7px">
+      下フラップを無くし、上フラップを <b>奥行D + 差し込みベロ</b> の長さにします。
+      先端を少し絞って、箱の内側へ差し込みやすくしています。既定値はベロをやや短めにして、A4上で余裕を持たせています。
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>3. のりしろ</h2>
     <label class="check"><input id="autoGlue" type="checkbox" checked> 下段左右ののりしろ幅を奥行Dに追従させる</label>
     <div class="grid2">
       <div><label>下段のりしろ幅 (mm)</label><input id="glueW" type="number" min="4" step="0.1" value="32"></div>
       <div><label>奥行端からの逃げ (mm)</label><input id="glueInset" type="number" min="0.5" step="0.1" value="2"></div>
       <div><label>上下端クリアランス (mm)</label><input id="clearance" type="number" min="0" step="0.1" value="0.5"></div>
-      <div><label>コーナータブ幅 (mm)</label><input id="cornerW" type="number" min="4" step="0.1" value="12"></div>
+      <div><label>コーナータブ幅 (mm)</label><input id="cornerW" type="number" min="4" step="0.1" value="18"></div>
       <div><label>台形の絞り (mm)</label><input id="taper" type="number" min="0" step="0.1" value="2"></div>
     </div>
     <div class="small" style="margin-top:7px">
@@ -94,23 +106,23 @@ body.workspaceMode .toolbar .sizeText,body.workspaceMode .legend{display:none!im
   </div>
 
   <div class="section">
-    <h2>3. 組み立て時の重なり</h2>
+    <h2>4. 組み立て時の重なり</h2>
     <div class="layerbox">
       <div class="small">ケース内側 → ケース外側</div>
       <div class="layer l1">① 下段 左右（内側のりしろ）</div>
       <div class="layer l2">② コーナー 左右（中間・台形）</div>
       <div class="layer l3">③ 上段 左右（外側面）</div>
     </div>
-    <div class="note" style="margin-top:8px">カードが触れる側では、下段のりしろの端が外側面の裏に収まり、コーナータブもその間に隠れる設計です。</div>
+    <div class="note" style="margin-top:8px">カードが触れる側では、下段のりしろの端が外側面の裏に収まり、コーナータブもその間に隠れる設計です。上側は差し込みフタになっており、閉じたあとベロをケース内側へ入れて固定します。中間のりしろは既定値を少し長めにして、接着しやすくしています。</div>
   </div>
 
   <div class="section">
-    <h2>4. 用紙</h2>
+    <h2>5. 用紙</h2>
     <div class="grid2">
       <div><label>用紙</label>
         <select id="paper"><option value="A4P">A4 縦</option><option value="A4L">A4 横</option><option value="A3P">A3 縦</option><option value="A3L">A3 横</option><option value="custom">カスタム</option></select>
       </div>
-      <div><label>外側余白 (mm)</label><input id="margin" type="number" min="0" step="0.5" value="8"></div>
+      <div><label>外側余白 (mm)</label><input id="margin" type="number" min="0" step="0.5" value="2"></div>
     </div>
     <div id="customPaper" class="grid2" style="display:none;margin-top:8px">
       <div><label>用紙幅</label><input id="paperW" type="number" value="210"></div>
@@ -120,12 +132,12 @@ body.workspaceMode .toolbar .sizeText,body.workspaceMode .legend{display:none!im
   </div>
 
   <div class="section">
-    <h2>5. 面を選択</h2>
+    <h2>6. 面を選択</h2>
     <div id="faceList" class="faceList"></div>
   </div>
 
   <div class="section">
-    <h2>6. 選択面の画像</h2>
+    <h2>7. 選択面の画像</h2>
     <div id="selectedFace" class="selectedBox">表面</div>
     <div class="small mobileOnlyHint">スマホ：画像を入れた面だけ1本指ドラッグ・2本指ピンチで調整できます。画像なしの面や余白では普通にスクロールできます。</div>
     <div class="row">
@@ -146,7 +158,7 @@ body.workspaceMode .toolbar .sizeText,body.workspaceMode .legend{display:none!im
   </div>
 
   <div class="section">
-    <h2>7. ガイド</h2>
+    <h2>8. ガイド</h2>
     <label class="check"><input id="showLabels" type="checkbox" checked> 面名を表示</label>
     <label class="check"><input id="showGuides" type="checkbox" checked> カット線・折り線を表示</label>
     <label class="check"><input id="guidesTop" type="checkbox" checked> ガイド線を画像より前面に表示</label>
@@ -154,7 +166,7 @@ body.workspaceMode .toolbar .sizeText,body.workspaceMode .legend{display:none!im
   </div>
 
   <div class="section">
-    <h2>8. 保存・書き出し</h2>
+    <h2>9. 保存・書き出し</h2>
     <div class="grid2">
       <button id="saveProject">プロジェクト保存</button>
       <label for="projectFile" class="btn filebtn">プロジェクト読込</label><input id="projectFile" type="file" accept=".json,application/json">
@@ -168,8 +180,8 @@ body.workspaceMode .toolbar .sizeText,body.workspaceMode .legend{display:none!im
 
 <main class="main">
   <div class="toolbar">
-    <span class="pill">v4.8 / ドラッグ時スクロール抑制</span><span id="netSize" class="sizeText"></span><div class="viewSwitch"><button id="focusViewBtn" type="button" class="viewBtn">選択面を大きく</button><button id="allViewBtn" type="button" class="viewBtn">全体を見る</button><button id="workspaceToggle" type="button" class="workspaceBtn">⛶ 作業スペース拡大</button></div><span class="spacer"></span>
-    <span id="gestureHelp" class="gestureHelp">面を選ぶとしっかりアップ・全体表示も可能</span>
+    <span class="pill">v4.9.3 / ベロ短縮・中間のりしろ拡張</span><span id="netSize" class="sizeText"></span><div class="viewSwitch"><button id="focusViewBtn" type="button" class="viewBtn">選択面を大きく</button><button id="allViewBtn" type="button" class="viewBtn">全体を見る</button><button id="workspaceToggle" type="button" class="workspaceBtn">⛶ 作業スペース拡大</button></div><span class="spacer"></span>
+    <span id="gestureHelp" class="gestureHelp">厚いデッキ向けの差し込みフタ構造にも対応</span>
     <span class="legend"><span><i class="dot"></i>カット</span><span><i class="dot fold"></i>折り</span></span>
   </div>
   <div id="mobileQuick" class="mobileQuick collapsed">
@@ -219,7 +231,7 @@ const NS="http://www.w3.org/2000/svg", $=id=>document.getElementById(id);
 const presets={A4P:[210,297],A4L:[297,210],A3P:[297,420],A3L:[420,297]};
 const mk=(name,bg="#ffffff")=>({name,bg,img:null,iw:1,ih:1,fit:"cover",zoom:100,ox:0,oy:0,rot:0});
 const faces={
-  top:mk("上フラップ"),
+  top:mk("上フラップ（差し込みフタ）"),
   upperL:mk("上段 左（外側面）"),
   front:mk("表面"),
   upperR:mk("上段 右（外側面）"),
@@ -228,49 +240,51 @@ const faces={
   cornerR:mk("右コーナー（中間のりしろ）","#eef6ff"),
   lowerL:mk("下段 左（内側のりしろ）","#f3f4f6"),
   back:mk("裏面"),
-  lowerR:mk("下段 右（内側のりしろ）","#f3f4f6"),
-  bottom:mk("下フラップ")
+  lowerR:mk("下段 右（内側のりしろ）","#f3f4f6")
 };
 let selected="front";
 let viewMode="all";
 function svgEl(tag,a={}){const n=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(a)){if(k==="text")n.textContent=v;else if(k==="href")n.setAttributeNS("http://www.w3.org/1999/xlink","href",v);else n.setAttribute(k,v)}return n}
 function paper(){return $("paper").value==="custom"?[+$("paperW").value||210,+$("paperH").value||297]:presets[$("paper").value]}
 function nums(){return {
-  W:+$("boxW").value||70,
-  H:+$("boxH").value||95,
-  D:+$("boxD").value||34,
+  W:+$("boxW").value||73,
+  H:+$("boxH").value||100,
+  D:+$("boxD").value||53,
+  TL:+$("tuckLen").value||14,
+  TI:+$("tuckInset").value||3,
   G:+$("glueW").value||32,
   GI:+$("glueInset").value||2,
   AG:$("autoGlue").checked,
   C:+$("clearance").value||0,
-  TW:+$("cornerW").value||12,
+  TW:+$("cornerW").value||18,
   T:+$("taper").value||0,
-  M:+$("margin").value||0
+  M:($("margin").value===""?2:+$("margin").value)||2
 }}
 function geom(){
   const n=nums(), [pw,ph]=paper();
   const W=n.W,H=n.H,D=n.D,C=Math.max(0,n.C);
+  const TL=Math.max(8,n.TL), TI=Math.max(0,Math.min(n.TI,H/4));
   const autoG = Math.max(4, D - Math.max(0.5,n.GI));
   const G=Math.max(4,Math.min(n.AG ? autoG : n.G,D-0.5));
   const CW=Math.max(2,Math.min(n.TW,D-0.5));
   const taper=Math.max(0,Math.min(n.T,Math.max(0,(D-2*C)/2-0.2)));
-  const netW=H+2*D, netH=2*W+3*D;
+  const topH=D+TL;
+  const netW=H+2*D, netH=2*W+2*D+TL;
   const x0=(pw-netW)/2,y0=(ph-netH)/2,xC=x0+D,xR=xC+H;
-  const yT=y0,yF=y0+D,yBri=yF+W,yBack=yBri+D,yBot=yBack+W;
+  const yT=y0,yF=y0+topH,yBri=yF+W,yBack=yBri+D;
   const shapes={
-    top:{type:"rect",x:xC,y:yT,w:H,h:D},
+    top:{type:"poly",pts:[[xC,yF],[xR,yF],[xR,yT+TL],[xR-TI,yT],[xC+TI,yT],[xC,yT+TL]]},
     upperL:{type:"rect",x:x0,y:yF,w:D,h:W},
     front:{type:"rect",x:xC,y:yF,w:H,h:W},
     upperR:{type:"rect",x:xR,y:yF,w:D,h:W},
     bridge:{type:"rect",x:xC,y:yBri,w:H,h:D},
     back:{type:"rect",x:xC,y:yBack,w:H,h:W},
-    bottom:{type:"rect",x:xC,y:yBot,w:H,h:D},
     lowerL:{type:"poly",pts:[[xC,yBack+C],[xC-G,yBack+C],[xC-G,yBack+W-C],[xC,yBack+W-C]]},
     lowerR:{type:"poly",pts:[[xR,yBack+C],[xR+G,yBack+C],[xR+G,yBack+W-C],[xR,yBack+W-C]]},
     cornerL:{type:"poly",pts:[[xC,yBri+C],[xC-CW,yBri+C+taper],[xC-CW,yBri+D-C-taper],[xC,yBri+D-C]]},
     cornerR:{type:"poly",pts:[[xR,yBri+C],[xR+CW,yBri+C+taper],[xR+CW,yBri+D-C-taper],[xR,yBri+D-C]]}
   };
-  return {...n,pw,ph,W,H,D,G,C,CW,taper,netW,netH,x0,xC,xR,yT,yF,yBri,yBack,yBot,shapes};
+  return {...n,pw,ph,W,H,D,TL,TI,G,C,CW,taper,topH,netW,netH,x0,xC,xR,yT,yF,yBri,yBack,shapes};
 }
 function bbox(s){
   if(s.type==="rect")return[s.x,s.y,s.w,s.h];
@@ -350,12 +364,12 @@ function render(){
   if($("showGuides").checked){
     const cut={fill:"none",stroke:"#111","stroke-width":"0.35","stroke-linejoin":"round"},fold={fill:"none",stroke:"#777","stroke-width":"0.28","stroke-dasharray":"2.5 1.5"};
     // main outer contour where actual full faces define the boundary
-    const p=[[g.xC,g.yT],[g.xR,g.yT],[g.xR,g.yF],[g.xR+g.D,g.yF],[g.xR+g.D,g.yBri],[g.xR,g.yBri],[g.xR,g.yBack],[g.xR+g.G,g.yBack+g.C],[g.xR+g.G,g.yBack+g.W-g.C],[g.xR,g.yBack+g.W],[g.xR,g.yBot+g.D],[g.xC,g.yBot+g.D],[g.xC,g.yBack+g.W],[g.xC-g.G,g.yBack+g.W-g.C],[g.xC-g.G,g.yBack+g.C],[g.xC,g.yBack],[g.xC,g.yBri],[g.x0,g.yBri],[g.x0,g.yF],[g.xC,g.yF],[g.xC,g.yT]];
+    const p=[[g.xC+g.TI,g.yT],[g.xR-g.TI,g.yT],[g.xR,g.yT+g.TL],[g.xR,g.yF],[g.xR+g.D,g.yF],[g.xR+g.D,g.yBri],[g.xR,g.yBri],[g.xR,g.yBack],[g.xR+g.G,g.yBack+g.C],[g.xR+g.G,g.yBack+g.W-g.C],[g.xR,g.yBack+g.W],[g.xC,g.yBack+g.W],[g.xC-g.G,g.yBack+g.W-g.C],[g.xC-g.G,g.yBack+g.C],[g.xC,g.yBack],[g.xC,g.yBri],[g.x0,g.yBri],[g.x0,g.yF],[g.xC,g.yF],[g.xC,g.yT+g.TL],[g.xC+g.TI,g.yT]];
     guide.appendChild(svgEl("polyline",{points:p.map(a=>a.join(",")).join(" "),...cut}));
     // explicit tab cut outlines
-    ["cornerL","cornerR","lowerL","lowerR"].forEach(id=>guide.appendChild(shapeNode(g.shapes[id],cut)));
+    ["top","cornerL","cornerR","lowerL","lowerR"].forEach(id=>guide.appendChild(shapeNode(g.shapes[id],cut)));
     // fold lines
-    [[g.xC,g.yF,g.xR,g.yF],[g.xC,g.yBri,g.xR,g.yBri],[g.xC,g.yBack,g.xR,g.yBack],[g.xC,g.yBack+g.W,g.xR,g.yBack+g.W],[g.xC,g.yF,g.xC,g.yBri],[g.xR,g.yF,g.xR,g.yBri],[g.xC,g.yBri,g.xC,g.yBri+g.D],[g.xR,g.yBri,g.xR,g.yBri+g.D],[g.xC,g.yBack,g.xC,g.yBack+g.W],[g.xR,g.yBack,g.xR,g.yBack+g.W]]
+    [[g.xC,g.yF,g.xR,g.yF],[g.xC,g.yT+g.TL,g.xR,g.yT+g.TL],[g.xC,g.yBri,g.xR,g.yBri],[g.xC,g.yBack,g.xR,g.yBack],[g.xC,g.yF,g.xC,g.yBri],[g.xR,g.yF,g.xR,g.yBri],[g.xC,g.yBri,g.xC,g.yBri+g.D],[g.xR,g.yBri,g.xR,g.yBri+g.D],[g.xC,g.yBack,g.xC,g.yBack+g.W],[g.xR,g.yBack,g.xR,g.yBack+g.W]]
       .forEach(a=>guide.appendChild(svgEl("line",{x1:a[0],y1:a[1],x2:a[2],y2:a[3],...fold})));
     // fold lines of glue flaps at their bases, reduced to active attached lengths
     guide.appendChild(svgEl("line",{x1:g.xC,y1:g.yBack+g.C,x2:g.xC,y2:g.yBack+g.W-g.C,...fold}));
@@ -366,21 +380,21 @@ function render(){
 
   const fits=g.netW+2*g.M<=g.pw&&g.netH+2*g.M<=g.ph,msg=$("fitMsg");msg.className=fits?"ok":"warn";
   msg.textContent=fits?`1:1で収まります。展開図 ${g.netW.toFixed(1)} × ${g.netH.toFixed(1)} mm`:`1:1では用紙に収まりません。必要 ${ (g.netW+2*g.M).toFixed(1)} × ${(g.netH+2*g.M).toFixed(1)} mm`;
-  $("netSize").textContent=`展開図 ${g.netW.toFixed(1)} × ${g.netH.toFixed(1)} mm / 下段のりしろ ${g.G.toFixed(1)} mm / コーナー ${g.CW.toFixed(1)} mm`;
+  $("netSize").textContent=`展開図 ${g.netW.toFixed(1)} × ${g.netH.toFixed(1)} mm / 差し込みベロ ${g.TL.toFixed(1)} mm / 下段のりしろ ${g.G.toFixed(1)} mm`;
   refreshButtons();
 }
 function selectFace(id,{focus=true}={}){selected=id;if(focus)viewMode="focus";sync();render()}
 function buildButtons(){const l=$("faceList"), q=$("quickFaceList");l.innerHTML="";if(q)q.innerHTML="";for(const[id,f]of Object.entries(faces)){const b=document.createElement("button");b.className="faceBtn";b.dataset.id=id;b.textContent=f.name;b.onclick=()=>selectFace(id,{focus:true});l.appendChild(b);if(q){const qb=document.createElement("button");qb.type="button";qb.className="quickFaceBtn";qb.dataset.id=id;qb.textContent=f.name;qb.onclick=()=>selectFace(id,{focus:true});q.appendChild(qb)}}}
 function refreshButtons(){document.querySelectorAll(".faceBtn").forEach(b=>{b.classList.toggle("selected",b.dataset.id===selected);b.classList.toggle("hasimg",!!faces[b.dataset.id].img);b.textContent=faces[b.dataset.id].name});document.querySelectorAll(".quickFaceBtn").forEach(b=>{b.classList.toggle("active",b.dataset.id===selected);b.classList.toggle("hasimg",!!faces[b.dataset.id].img);b.textContent=faces[b.dataset.id].name})}
 function sync(){const f=faces[selected];$("selectedFace").textContent=f.name;const qsf=$("quickSelectedFace"), qsf2=$("quickSelectedFace2");if(qsf)qsf.textContent=f.name;if(qsf2)qsf2.textContent=f.name;$("fitMode").value=f.fit;$("rotation").value=String(f.rot);$("bgColor").value=f.bg;$("faceName").value=f.name;$("zoom").value=f.zoom;$("offX").value=f.ox;$("offY").value=f.oy;$("zoomVal").textContent=f.zoom+"%";$("offXVal").textContent=f.ox+"%";$("offYVal").textContent=f.oy+"%";if($("quickFitMode"))$("quickFitMode").value=f.fit;if($("quickRotation"))$("quickRotation").value=String(f.rot);if($("quickZoom"))$("quickZoom").value=Math.round(f.zoom);if($("quickOffX"))$("quickOffX").value=Math.round(f.ox);if($("quickOffY"))$("quickOffY").value=Math.round(f.oy);if($("quickZoomVal"))$("quickZoomVal").textContent=Math.round(f.zoom)+"%";if($("quickOffXVal"))$("quickOffXVal").textContent=Math.round(f.ox)+"%";if($("quickOffYVal"))$("quickOffYVal").textContent=Math.round(f.oy)+"%";refreshButtons();syncViewButtons();syncDetailButton()}
-["boxW","boxH","boxD","glueW","glueInset","clearance","cornerW","taper","margin","paperW","paperH"].forEach(id=>$(id).addEventListener("input",()=>{syncGlueUI();render()}));
+["boxW","boxH","boxD","tuckLen","tuckInset","glueW","glueInset","clearance","cornerW","taper","margin","paperW","paperH"].forEach(id=>$(id).addEventListener("input",()=>{syncGlueUI();render()}));
 $("autoGlue").addEventListener("change",()=>{syncGlueUI();render()});
 
 function syncGlueUI(){
   const auto=$("autoGlue").checked;
   $("glueW").disabled=auto;
   if(auto){
-    const d=+$("boxD").value||34, inset=+$("glueInset").value||2;
+    const d=+$("boxD").value||53, inset=+$("glueInset").value||2;
     $("glueW").value=Math.max(4,d-inset).toFixed(1);
   }
 }
@@ -400,16 +414,16 @@ if($("quickSaveProject"))$("quickSaveProject").onclick=()=>$("saveProject").clic
 if($("quickExportPng"))$("quickExportPng").onclick=()=>$("exportPng").click();
 function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function svgString(){const c=$("sheet").cloneNode(true);c.querySelectorAll("[data-face]").forEach(n=>n.remove());c.querySelectorAll('[stroke="#2563eb"]').forEach(n=>n.remove());const[pw,ph]=paper();c.setAttribute("xmlns",NS);c.setAttribute("width",pw+"mm");c.setAttribute("height",ph+"mm");c.setAttribute("viewBox",`0 0 ${pw} ${ph}`);return new XMLSerializer().serializeToString(c)}
-$("exportSvg").onclick=()=>dl(new Blob([svgString()],{type:"image/svg+xml;charset=utf-8"}),"deckcase_v4_8.svg");
-$("exportPng").onclick=()=>{const[pw,ph]=paper(),dpi=300,pxW=Math.round(pw/25.4*dpi),pxH=Math.round(ph/25.4*dpi);let s=svgString().replace(/width="[^"]*"/,`width="${pxW}"`).replace(/height="[^"]*"/,`height="${pxH}"`);const u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml"})),im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=pxW;c.height=pxH;const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,pxW,pxH);ctx.drawImage(im,0,0,pxW,pxH);c.toBlob(b=>dl(b,"deckcase_v4_8_300dpi.png"),"image/png");URL.revokeObjectURL(u)};im.src=u};
+$("exportSvg").onclick=()=>dl(new Blob([svgString()],{type:"image/svg+xml;charset=utf-8"}),"deckcase_v4_9_3.svg");
+$("exportPng").onclick=()=>{const[pw,ph]=paper(),dpi=300,pxW=Math.round(pw/25.4*dpi),pxH=Math.round(ph/25.4*dpi);let s=svgString().replace(/width="[^"]*"/,`width="${pxW}"`).replace(/height="[^"]*"/,`height="${pxH}"`);const u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml"})),im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=pxW;c.height=pxH;const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,pxW,pxH);ctx.drawImage(im,0,0,pxW,pxH);c.toBlob(b=>dl(b,"deckcase_v4_9_3_300dpi.png"),"image/png");URL.revokeObjectURL(u)};im.src=u};
 $("printBtn").onclick=()=>window.print();
-$("saveProject").onclick=()=>{const n=nums(),data={version:4.8,box:{W:n.W,H:n.H,D:n.D},glue:{G:n.G,GI:n.GI,AG:n.AG,C:n.C,CW:n.TW,T:n.T},paper:{type:$("paper").value,W:+$("paperW").value,H:+$("paperH").value,M:n.M},options:{showLabels:$("showLabels").checked,showGuides:$("showGuides").checked,guidesTop:$("guidesTop").checked,shadeGlue:$("shadeGlue").checked},faces};dl(new Blob([JSON.stringify(data)],{type:"application/json"}),"deckcase_v4_8_project.json")};
-$("projectFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);$("boxW").value=d.box.W;$("boxH").value=d.box.H;$("boxD").value=d.box.D;if(d.glue){
+$("saveProject").onclick=()=>{const n=nums(),data={version:4.93,box:{W:n.W,H:n.H,D:n.D},flap:{TL:n.TL,TI:n.TI},glue:{G:n.G,GI:n.GI,AG:n.AG,C:n.C,CW:n.TW,T:n.T},paper:{type:$("paper").value,W:+$("paperW").value,H:+$("paperH").value,M:n.M},options:{showLabels:$("showLabels").checked,showGuides:$("showGuides").checked,guidesTop:$("guidesTop").checked,shadeGlue:$("shadeGlue").checked},faces};dl(new Blob([JSON.stringify(data)],{type:"application/json"}),"deckcase_v4_9_3_project.json")};
+$("projectFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);$("boxW").value=d.box.W;$("boxH").value=d.box.H;$("boxD").value=d.box.D;if(d.flap){$("tuckLen").value=d.flap.TL ?? 14;$("tuckInset").value=d.flap.TI ?? 3;}if(d.glue){
   $("glueW").value=d.glue.G ?? 32;
   $("glueInset").value=d.glue.GI ?? 2;
   $("autoGlue").checked=d.glue.AG ?? false;
   $("clearance").value=d.glue.C ?? 0.5;
-  $("cornerW").value=d.glue.CW ?? 12;
+  $("cornerW").value=d.glue.CW ?? 18;
   $("taper").value=d.glue.T ?? 2;
 }$("paper").value=d.paper.type;$("paperW").value=d.paper.W;$("paperH").value=d.paper.H;$("margin").value=d.paper.M;$("customPaper").style.display=$("paper").value==="custom"?"grid":"none";if(d.options){for(const k of["showLabels","showGuides","guidesTop","shadeGlue"])if(k in d.options)$(k).checked=d.options[k]}for(const id of Object.keys(faces))if(d.faces&&d.faces[id])Object.assign(faces[id],d.faces[id]);syncGlueUI();sync();render()}catch{alert("読み込みに失敗しました")}};r.readAsText(f);e.target.value=""};
 $("resetBtn").onclick=()=>{if(confirm("初期化しますか？"))location.reload()};
