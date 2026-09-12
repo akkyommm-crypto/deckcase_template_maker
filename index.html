@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>デッキケース展開図メーカー v4.7</title>
+<style id="pageStyle">@page{size:210mm 297mm;margin:0}</style>
+<style>
+:root{--bg:#f3f4f6;--panel:#fff;--ink:#111827;--muted:#6b7280;--line:#d1d5db;--sel:#2563eb}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans JP",sans-serif;background:var(--bg);color:var(--ink)}
+.app{display:grid;grid-template-columns:370px 1fr;min-height:100vh}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:18px;height:100vh;overflow:auto;position:sticky;top:0}
+.main{padding:22px;min-width:0}
+h1{font-size:20px;margin:0 0 4px}.sub{font-size:12px;color:var(--muted);line-height:1.55}
+.section{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.section h2{font-size:14px;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+label{display:block;font-size:11px;color:#4b5563;margin-bottom:4px}
+input[type=number],select,input[type=text]{width:100%;height:34px;border:1px solid var(--line);border-radius:7px;padding:0 9px;background:#fff}
+input[type=color]{width:100%;height:34px;border:1px solid var(--line);border-radius:7px;background:#fff;padding:2px}
+button,.btn{height:36px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:0 12px;cursor:pointer;font-size:12px;font-weight:600}
+button:hover,.btn:hover{background:#f8fafc}button.primary{background:#111827;color:#fff;border-color:#111827}button.danger{color:#b91c1c}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+.faceList{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:255px;overflow:auto}
+.faceBtn{height:auto;min-height:34px;text-align:left;padding:7px 9px;font-weight:500;line-height:1.2}.faceBtn.selected{outline:2px solid var(--sel);border-color:var(--sel)}.faceBtn.hasimg::after{content:" ●";color:#16a34a}
+.selectedBox{font-size:12px;background:#eff6ff;border:1px solid #bfdbfe;padding:8px;border-radius:7px;margin-bottom:9px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rangeRow{grid-column:1/-1}.rangeLine{display:grid;grid-template-columns:56px 1fr 44px;gap:6px;align-items:center;font-size:11px;color:#4b5563}
+input[type=range]{width:100%}.filebtn{display:flex;align-items:center;justify-content:center}#imgFile,#projectFile{display:none}
+.canvasWrap{display:flex;justify-content:center;align-items:flex-start;overflow:auto;min-height:calc(100vh - 44px)}
+.paperShell{background:#fff;box-shadow:0 8px 28px rgba(0,0,0,.13)}#sheet{display:block;max-width:none;background:#fff}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.toolbar .spacer{flex:1}
+.pill{font-size:11px;border-radius:999px;padding:4px 8px;background:#eef2ff;color:#3730a3}.sizeText{font-size:12px;color:#4b5563}
+.legend{font-size:11px;color:#6b7280}.legend span{margin-right:10px}.dot{display:inline-block;width:18px;border-top:2px solid #111;vertical-align:middle;margin-right:4px}.dot.fold{border-top-style:dashed;border-color:#777}
+.check{display:flex;align-items:center;gap:7px;font-size:12px;color:#374151;margin:6px 0}.check input{width:auto}
+.ok,.warn{font-size:11px;padding:8px;border-radius:7px;line-height:1.45;margin-top:8px}.ok{color:#166534;background:#f0fdf4;border:1px solid #bbf7d0}.warn{color:#b45309;background:#fffbeb;border:1px solid #fde68a}
+.small{font-size:10px;color:#6b7280;line-height:1.45}
+.layerbox{border:1px solid #e5e7eb;border-radius:8px;padding:9px;background:#fafafa}
+.layer{height:26px;border-radius:5px;margin:5px 0;padding:5px 8px;font-size:11px;font-weight:700}
+.l1{background:#e5e7eb}.l2{background:#dbeafe}.l3{background:#fde68a}
+.note{font-size:11px;color:#374151;line-height:1.55;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:9px}.mobileOnlyHint{display:none}.viewSwitch{display:flex;gap:6px;flex-wrap:wrap}.viewBtn{height:30px;padding:0 10px;border-radius:999px;font-size:11px;background:#fff}.viewBtn.active{background:#111827;color:#fff;border-color:#111827}.sidebarHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.sidebarCloseBtn{display:none}.mobileQuick{display:none}.mobileQuickBar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.05)}.mobileQuickBar .left{display:flex;align-items:center;gap:8px;min-width:0}.mobileQuickLabel{font-size:12px;font-weight:700;color:#111827;white-space:nowrap}.mobileQuickFace{font-size:12px;color:#4b5563;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mobileQuickBody{margin-top:8px}.mobileQuick.collapsed .mobileQuickBody{display:none}.quickCard{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.05)}.quickHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.quickTitle{font-size:12px;font-weight:700;color:#111827}.quickFaceList{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scroll-snap-type:x proximity}.quickFaceBtn{flex:0 0 auto;min-height:36px;padding:7px 10px;border:1px solid #cbd5e1;border-radius:999px;background:#fff;font-size:12px;font-weight:600;scroll-snap-align:start}.quickFaceBtn.active{background:#111827;color:#fff;border-color:#111827}.quickFaceBtn.hasimg::after{content:" ●";color:#22c55e}.quickMini{margin-top:8px}.quickAdjust{margin-top:8px;border-top:1px solid #e5e7eb;padding-top:8px}.quickAdjust summary{list-style:none;cursor:pointer;font-size:12px;font-weight:700;color:#111827}.quickAdjust summary::-webkit-details-marker{display:none}.quickAdjust summary::after{content:"⌄";float:right;color:#6b7280}.quickAdjust[open] summary::after{content:"⌃"}.quickAdjustBody{margin-top:8px}.compactBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sheetMeta{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+#sheet{touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none}#sheet [data-face]{cursor:pointer;touch-action:pan-y pinch-zoom}#sheet [data-face].gestureFace{cursor:grab;touch-action:none}#sheet.dragging [data-face].gestureFace{cursor:grabbing}.gestureHelp{display:none;font-size:11px;color:#374151;background:#ecfeff;border:1px solid #a5f3fc;border-radius:999px;padding:4px 8px;white-space:nowrap}.sectionToggle{display:none;float:right;font-size:14px;color:#6b7280;transition:transform .18s}.section.collapsed .sectionToggle{transform:rotate(-90deg)}
+@media(max-width:900px){
+  .app{display:flex;flex-direction:column;min-height:100vh}.main{order:1;padding:8px 8px 10px}.sidebar{display:block;order:2;height:auto;position:fixed;left:0;right:0;bottom:0;top:14vh;z-index:10020;background:#fff;border-right:0;border-top-left-radius:18px;border-top-right-radius:18px;box-shadow:0 -10px 30px rgba(0,0,0,.16);padding:12px 12px 84px;overflow:auto;transform:translateY(102%);transition:transform .22s ease}.toolbar{margin-bottom:8px;gap:6px}.toolbar .sizeText{width:100%;order:5;font-size:10px}.legend{display:none}.gestureHelp{display:inline-block}.mobileOnlyHint{display:block;margin:-2px 0 8px;color:#0369a1}.mobileQuick{display:block;margin:0 0 8px}.canvasWrap{min-height:0;max-height:none;overflow:hidden;justify-content:center;width:100%}.paperShell{margin:0 auto;max-width:none;flex:0 0 auto}.section{margin-top:10px;padding-top:10px}.section h2{margin:-4px -4px 2px;padding:8px 4px;cursor:pointer;user-select:none}.sectionToggle{display:inline-block}.section.collapsed>:not(h2){display:none!important}.faceList{display:flex;grid-template-columns:none;overflow-x:auto;max-height:none;gap:6px;padding:2px 0 6px;scroll-snap-type:x proximity}.faceBtn{flex:0 0 auto;min-width:148px;min-height:42px;scroll-snap-align:start}.controls{grid-template-columns:1fr}.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr);gap:6px}button,.btn{min-height:42px;height:auto;padding:8px 10px}input[type=number],select,input[type=text],input[type=color]{height:42px}.rangeLine{grid-template-columns:52px 1fr 46px;min-height:38px}.selectedBox{position:sticky;top:0;z-index:3}.sub{font-size:11px}.note,.small{font-size:10px}.layer{height:auto;min-height:26px}.sidebarCloseBtn{display:inline-flex;align-items:center;justify-content:center}.quickHeader .viewBtn{min-height:36px;height:36px;padding:0 12px}.sheetMeta{font-size:10px}.compactBtns .btn,.compactBtns button{min-height:40px}}
+body.mobilePanelOpen::before{content:"";position:fixed;inset:0;background:rgba(15,23,42,.34);z-index:10010}body.mobilePanelOpen .sidebar{transform:translateY(0)}body.mobilePanelOpen{overflow:hidden}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}.gestureHelp{width:100%;text-align:center}.pill{font-size:10px}}
+
+.workspaceBtn{height:30px;padding:0 10px;border-radius:999px;font-size:11px;background:#fff}
+body.workspaceMode{overflow:hidden}
+body.workspaceMode .main{position:fixed;inset:0;z-index:9999;background:var(--bg);padding:6px;display:flex;flex-direction:column}
+body.workspaceMode .sidebar{display:none!important}
+body.workspaceMode .toolbar{flex:0 0 auto;margin:0 0 6px}
+body.workspaceMode .canvasWrap{flex:1 1 auto;min-height:0;max-height:none!important;overflow:auto!important;display:flex;align-items:center;justify-content:center;padding:2px}
+body.workspaceMode .paperShell{max-width:none;flex:0 0 auto;box-shadow:0 4px 18px rgba(0,0,0,.18)}
+body.workspaceMode .workspaceBtn{background:#111827;color:#fff;border-color:#111827}
+body.workspaceMode .toolbar .sizeText,body.workspaceMode .legend{display:none!important}
+@media(max-width:900px){
+  .main{padding:6px 4px 4px}
+  .canvasWrap{max-height:none;overflow:hidden;width:100%;}
+  .paperShell{max-width:none;flex:0 0 auto;}
+  .workspaceBtn{display:inline-flex;align-items:center;justify-content:center;min-height:34px;height:34px;padding:0 10px}
+}
+@media print{body{background:#fff}.sidebar,.toolbar{display:none!important}.app{display:block}.main{padding:0}.canvasWrap{display:block;overflow:visible;min-height:0}.paperShell{box-shadow:none}#sheet{width:var(--print-w)!important;height:var(--print-h)!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebarHead"><h1>デッキケース展開図メーカー v4.7</h1><button id="sidebarCloseBtn" type="button" class="viewBtn sidebarCloseBtn">閉じる</button></div>
+  <div class="sub">上段左右＝完成時の外側面。下段左右＝内側のりしろ。コーナータブ＝その中間に入る構造です。</div>
+
+  <div class="section">
+    <h2>1. 完成サイズ</h2>
+    <div class="grid3">
+      <div><label>横幅 W (mm)</label><input id="boxW" type="number" min="10" step="0.1" value="70"></div>
+      <div><label>高さ H (mm)</label><input id="boxH" type="number" min="10" step="0.1" value="95"></div>
+      <div><label>奥行 D (mm)</label><input id="boxD" type="number" min="3" step="0.1" value="34"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>2. のりしろ</h2>
+    <label class="check"><input id="autoGlue" type="checkbox" checked> 下段左右ののりしろ幅を奥行Dに追従させる</label>
+    <div class="grid2">
+      <div><label>下段のりしろ幅 (mm)</label><input id="glueW" type="number" min="4" step="0.1" value="32"></div>
+      <div><label>奥行端からの逃げ (mm)</label><input id="glueInset" type="number" min="0.5" step="0.1" value="2"></div>
+      <div><label>上下端クリアランス (mm)</label><input id="clearance" type="number" min="0" step="0.1" value="0.5"></div>
+      <div><label>コーナータブ幅 (mm)</label><input id="cornerW" type="number" min="4" step="0.1" value="12"></div>
+      <div><label>台形の絞り (mm)</label><input id="taper" type="number" min="0" step="0.1" value="2"></div>
+    </div>
+    <div class="small" style="margin-top:7px">
+      下段左右は一番内側の接着面なので、初期設定では <b>奥行D−2mm</b> の広いのりしろにします。
+      34mm奥行なら約32mm。上下だけ0.5mm逃がして、接着面積をできるだけ確保します。
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>3. 組み立て時の重なり</h2>
+    <div class="layerbox">
+      <div class="small">ケース内側 → ケース外側</div>
+      <div class="layer l1">① 下段 左右（内側のりしろ）</div>
+      <div class="layer l2">② コーナー 左右（中間・台形）</div>
+      <div class="layer l3">③ 上段 左右（外側面）</div>
+    </div>
+    <div class="note" style="margin-top:8px">カードが触れる側では、下段のりしろの端が外側面の裏に収まり、コーナータブもその間に隠れる設計です。</div>
+  </div>
+
+  <div class="section">
+    <h2>4. 用紙</h2>
+    <div class="grid2">
+      <div><label>用紙</label>
+        <select id="paper"><option value="A4P">A4 縦</option><option value="A4L">A4 横</option><option value="A3P">A3 縦</option><option value="A3L">A3 横</option><option value="custom">カスタム</option></select>
+      </div>
+      <div><label>外側余白 (mm)</label><input id="margin" type="number" min="0" step="0.5" value="8"></div>
+    </div>
+    <div id="customPaper" class="grid2" style="display:none;margin-top:8px">
+      <div><label>用紙幅</label><input id="paperW" type="number" value="210"></div>
+      <div><label>用紙高さ</label><input id="paperH" type="number" value="297"></div>
+    </div>
+    <div id="fitMsg" class="ok"></div>
+  </div>
+
+  <div class="section">
+    <h2>5. 面を選択</h2>
+    <div id="faceList" class="faceList"></div>
+  </div>
+
+  <div class="section">
+    <h2>6. 選択面の画像</h2>
+    <div id="selectedFace" class="selectedBox">表面</div>
+    <div class="small mobileOnlyHint">スマホ：画像を入れた面だけ1本指ドラッグ・2本指ピンチで調整できます。画像なしの面や余白では普通にスクロールできます。</div>
+    <div class="row">
+      <label for="imgFile" class="btn filebtn">画像を選択</label><input id="imgFile" type="file" accept="image/*">
+      <button id="removeImg" class="danger">画像を削除</button>
+    </div>
+    <div class="controls" style="margin-top:9px">
+      <div><label>配置</label><select id="fitMode"><option value="cover">全面に敷く</option><option value="contain">全体を収める</option><option value="stretch">面いっぱいに変形</option></select></div>
+      <div><label>回転</label><select id="rotation"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
+      <div><label>背景色</label><input id="bgColor" type="color" value="#ffffff"></div>
+      <div><label>面名</label><input id="faceName" type="text"></div>
+      <div class="rangeRow">
+        <div class="rangeLine"><span>拡大</span><input id="zoom" type="range" min="20" max="400" value="100"><span id="zoomVal">100%</span></div>
+        <div class="rangeLine"><span>左右</span><input id="offX" type="range" min="-100" max="100" value="0"><span id="offXVal">0%</span></div>
+        <div class="rangeLine"><span>上下</span><input id="offY" type="range" min="-100" max="100" value="0"><span id="offYVal">0%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>7. ガイド</h2>
+    <label class="check"><input id="showLabels" type="checkbox" checked> 面名を表示</label>
+    <label class="check"><input id="showGuides" type="checkbox" checked> カット線・折り線を表示</label>
+    <label class="check"><input id="guidesTop" type="checkbox" checked> ガイド線を画像より前面に表示</label>
+    <label class="check"><input id="shadeGlue" type="checkbox" checked> のりしろを薄く表示</label>
+  </div>
+
+  <div class="section">
+    <h2>8. 保存・書き出し</h2>
+    <div class="grid2">
+      <button id="saveProject">プロジェクト保存</button>
+      <label for="projectFile" class="btn filebtn">プロジェクト読込</label><input id="projectFile" type="file" accept=".json,application/json">
+      <button id="exportSvg">SVG書き出し</button>
+      <button id="exportPng" class="primary">PNG 300dpi</button>
+      <button id="printBtn">1:1で印刷</button>
+      <button id="resetBtn">初期化</button>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="toolbar">
+    <span class="pill">v4.7 / クイック欄折りたたみ</span><span id="netSize" class="sizeText"></span><div class="viewSwitch"><button id="focusViewBtn" type="button" class="viewBtn">選択面を大きく</button><button id="allViewBtn" type="button" class="viewBtn">全体を見る</button><button id="workspaceToggle" type="button" class="workspaceBtn">⛶ 作業スペース拡大</button></div><span class="spacer"></span>
+    <span id="gestureHelp" class="gestureHelp">面を選ぶとしっかりアップ・全体表示も可能</span>
+    <span class="legend"><span><i class="dot"></i>カット</span><span><i class="dot fold"></i>折り</span></span>
+  </div>
+  <div id="mobileQuick" class="mobileQuick collapsed">
+    <div class="mobileQuickBar">
+      <div class="left">
+        <span class="mobileQuickLabel">クイック操作</span>
+        <span class="mobileQuickFace">編集中：<span id="quickSelectedFace">表面</span></span>
+      </div>
+      <button id="quickCollapseBtn" type="button" class="viewBtn">開く</button>
+    </div>
+    <div class="mobileQuickBody">
+      <div id="quickFaceList" class="quickFaceList"></div>
+      <div class="quickCard">
+        <div class="quickHeader">
+          <div class="quickTitle">編集中：<span id="quickSelectedFace2">表面</span></div>
+          <button id="detailToggleBtn" type="button" class="viewBtn">詳細設定</button>
+        </div>
+        <div class="compactBtns">
+          <label for="imgFile" class="btn filebtn">画像を選択</label>
+          <button id="quickRemoveImg" type="button" class="danger">画像削除</button>
+        </div>
+        <div class="compactBtns quickMini">
+          <button id="quickSaveProject" type="button">保存</button>
+          <button id="quickExportPng" type="button" class="primary">PNG出力</button>
+        </div>
+        <div class="grid2 quickMini">
+          <div><label>配置</label><select id="quickFitMode"><option value="cover">全面に敷く</option><option value="contain">全体を収める</option><option value="stretch">面いっぱいに変形</option></select></div>
+          <div><label>回転</label><select id="quickRotation"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
+        </div>
+        <details id="quickAdjust" class="quickAdjust" open>
+          <summary>位置と拡大を調整</summary>
+          <div class="quickAdjustBody">
+            <div class="rangeLine"><span>拡大</span><input id="quickZoom" type="range" min="20" max="400" value="100"><span id="quickZoomVal">100%</span></div>
+            <div class="rangeLine"><span>左右</span><input id="quickOffX" type="range" min="-100" max="100" value="0"><span id="quickOffXVal">0%</span></div>
+            <div class="rangeLine"><span>上下</span><input id="quickOffY" type="range" min="-100" max="100" value="0"><span id="quickOffYVal">0%</span></div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+  <div class="canvasWrap"><div class="paperShell"><svg id="sheet" xmlns="http://www.w3.org/2000/svg"></svg></div></div>
+</main>
+</div>
+
+<script>
+const NS="http://www.w3.org/2000/svg", $=id=>document.getElementById(id);
+const presets={A4P:[210,297],A4L:[297,210],A3P:[297,420],A3L:[420,297]};
+const mk=(name,bg="#ffffff")=>({name,bg,img:null,iw:1,ih:1,fit:"cover",zoom:100,ox:0,oy:0,rot:0});
+const faces={
+  top:mk("上フラップ"),
+  upperL:mk("上段 左（外側面）"),
+  front:mk("表面"),
+  upperR:mk("上段 右（外側面）"),
+  cornerL:mk("左コーナー（中間のりしろ）","#eef6ff"),
+  bridge:mk("底・奥行面"),
+  cornerR:mk("右コーナー（中間のりしろ）","#eef6ff"),
+  lowerL:mk("下段 左（内側のりしろ）","#f3f4f6"),
+  back:mk("裏面"),
+  lowerR:mk("下段 右（内側のりしろ）","#f3f4f6"),
+  bottom:mk("下フラップ")
+};
+let selected="front";
+let viewMode="all";
+function svgEl(tag,a={}){const n=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(a)){if(k==="text")n.textContent=v;else if(k==="href")n.setAttributeNS("http://www.w3.org/1999/xlink","href",v);else n.setAttribute(k,v)}return n}
+function paper(){return $("paper").value==="custom"?[+$("paperW").value||210,+$("paperH").value||297]:presets[$("paper").value]}
+function nums(){return {
+  W:+$("boxW").value||70,
+  H:+$("boxH").value||95,
+  D:+$("boxD").value||34,
+  G:+$("glueW").value||32,
+  GI:+$("glueInset").value||2,
+  AG:$("autoGlue").checked,
+  C:+$("clearance").value||0,
+  TW:+$("cornerW").value||12,
+  T:+$("taper").value||0,
+  M:+$("margin").value||0
+}}
+function geom(){
+  const n=nums(), [pw,ph]=paper();
+  const W=n.W,H=n.H,D=n.D,C=Math.max(0,n.C);
+  const autoG = Math.max(4, D - Math.max(0.5,n.GI));
+  const G=Math.max(4,Math.min(n.AG ? autoG : n.G,D-0.5));
+  const CW=Math.max(2,Math.min(n.TW,D-0.5));
+  const taper=Math.max(0,Math.min(n.T,Math.max(0,(D-2*C)/2-0.2)));
+  const netW=H+2*D, netH=2*W+3*D;
+  const x0=(pw-netW)/2,y0=(ph-netH)/2,xC=x0+D,xR=xC+H;
+  const yT=y0,yF=y0+D,yBri=yF+W,yBack=yBri+D,yBot=yBack+W;
+  const shapes={
+    top:{type:"rect",x:xC,y:yT,w:H,h:D},
+    upperL:{type:"rect",x:x0,y:yF,w:D,h:W},
+    front:{type:"rect",x:xC,y:yF,w:H,h:W},
+    upperR:{type:"rect",x:xR,y:yF,w:D,h:W},
+    bridge:{type:"rect",x:xC,y:yBri,w:H,h:D},
+    back:{type:"rect",x:xC,y:yBack,w:H,h:W},
+    bottom:{type:"rect",x:xC,y:yBot,w:H,h:D},
+    lowerL:{type:"poly",pts:[[xC,yBack+C],[xC-G,yBack+C],[xC-G,yBack+W-C],[xC,yBack+W-C]]},
+    lowerR:{type:"poly",pts:[[xR,yBack+C],[xR+G,yBack+C],[xR+G,yBack+W-C],[xR,yBack+W-C]]},
+    cornerL:{type:"poly",pts:[[xC,yBri+C],[xC-CW,yBri+C+taper],[xC-CW,yBri+D-C-taper],[xC,yBri+D-C]]},
+    cornerR:{type:"poly",pts:[[xR,yBri+C],[xR+CW,yBri+C+taper],[xR+CW,yBri+D-C-taper],[xR,yBri+D-C]]}
+  };
+  return {...n,pw,ph,W,H,D,G,C,CW,taper,netW,netH,x0,xC,xR,yT,yF,yBri,yBack,yBot,shapes};
+}
+function bbox(s){
+  if(s.type==="rect")return[s.x,s.y,s.w,s.h];
+  const xs=s.pts.map(p=>p[0]),ys=s.pts.map(p=>p[1]);return[Math.min(...xs),Math.min(...ys),Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)]
+}
+function shapeNode(s,attrs={}){
+  return s.type==="rect"?svgEl("rect",{x:s.x,y:s.y,width:s.w,height:s.h,...attrs}):svgEl("polygon",{points:s.pts.map(p=>p.join(",")).join(" "),...attrs});
+}
+function imageBox(id,s){
+  const [x,y,w,h]=bbox(s),f=faces[id],rw=f.iw/f.ih,pr=w/h;let bw,bh;
+  if(f.fit==="stretch"){bw=w;bh=h}else if(f.fit==="contain"){if(rw>pr){bw=w;bh=w/rw}else{bh=h;bw=h*rw}}else{if(rw>pr){bh=h;bw=h*rw}else{bw=w;bh=w/rw}}
+  const z=f.zoom/100;bw*=z;bh*=z;return{x:x+(w-bw)/2+f.ox/100*w,y:y+(h-bh)/2+f.oy/100*h,w:bw,h:bh,cx:x+w/2,cy:y+h/2}
+}
+function clampViewBox(box,pw,ph){
+  let x=Math.max(0,box.x), y=Math.max(0,box.y), w=Math.max(1,box.w), h=Math.max(1,box.h);
+  if(w>pw){x=0;w=pw}else if(x+w>pw){x=pw-w}
+  if(h>ph){y=0;h=ph}else if(y+h>ph){y=ph-h}
+  return {x,y,w,h};
+}
+function getDisplayBox(g){
+  if(viewMode!=="focus"){
+    // 「全体を見る」は用紙全体ではなく、展開図そのものを大きく表示する
+    const pad=6;
+    return clampViewBox({x:g.x0-pad,y:g.yT-pad,w:g.netW+pad*2,h:g.netH+pad*2},g.pw,g.ph);
+  }
+  const [x,y,w,h]=bbox(g.shapes[selected]);
+  // 選択面を画面いっぱい近くまで拡大。周囲は位置関係が分かる程度だけ残す。
+  const padX=Math.max(2,w*0.025), padY=Math.max(2,h*0.025);
+  const target={x:x-padX,y:y-padY,w:w+padX*2,h:h+padY*2};
+  return clampViewBox(target,g.pw,g.ph);
+}
+function render(){
+  const g=geom(),svg=$("sheet"),displayBox=getDisplayBox(g);svg.innerHTML="";svg.setAttribute("viewBox",`${displayBox.x} ${displayBox.y} ${displayBox.w} ${displayBox.h}`);
+  let displayW,displayH;
+  if(window.matchMedia("(max-width:900px)").matches){
+    const expanded=document.body.classList.contains("workspaceMode");
+    const maxW=Math.max(280,document.documentElement.clientWidth-(expanded?12:8));
+    const maxH=Math.max(340,window.innerHeight*(expanded?0.88:0.70));
+    const pxPerUnit=Math.min(maxW/displayBox.w,maxH/displayBox.h);
+    displayW=Math.floor(displayBox.w*pxPerUnit);
+    displayH=Math.floor(displayBox.h*pxPerUnit);
+  }else{
+    const maxW=Math.min(920,window.innerWidth*0.68);
+    const maxH=Math.max(420,window.innerHeight*0.78);
+    const pxPerUnit=Math.min(maxW/displayBox.w,maxH/displayBox.h);
+    displayW=Math.floor(displayBox.w*pxPerUnit);
+    displayH=Math.floor(displayBox.h*pxPerUnit);
+  }
+  // Acode/WebView対策：画面表示中はSVGの実属性もpxに統一する
+  svg.setAttribute("width",String(displayW));
+  svg.setAttribute("height",String(displayH));
+  svg.style.width=displayW+"px";
+  svg.style.height=displayH+"px";
+  const shell=svg.parentElement;
+  if(shell){shell.style.width=displayW+"px";shell.style.height=displayH+"px";}
+  document.documentElement.style.setProperty("--print-w",`${g.pw}mm`);document.documentElement.style.setProperty("--print-h",`${g.ph}mm`);$("pageStyle").textContent=`@page{size:${g.pw}mm ${g.ph}mm;margin:0}`;
+  svg.appendChild(svgEl("rect",{x:0,y:0,width:g.pw,height:g.ph,fill:"#fff"}));
+  const defs=svgEl("defs");svg.appendChild(defs);
+  for(const[id,s]of Object.entries(g.shapes)){const cp=svgEl("clipPath",{id:`clip_${id}`});cp.appendChild(shapeNode(s));defs.appendChild(cp)}
+  const art=svgEl("g",{id:"art"}),guide=svgEl("g",{id:"guides"});svg.appendChild($("guidesTop").checked?art:guide);svg.appendChild($("guidesTop").checked?guide:art);
+
+  for(const[id,s]of Object.entries(g.shapes)){
+    const f=faces[id], glue=id==="lowerL"||id==="lowerR"||id==="cornerL"||id==="cornerR";
+    let fill=f.bg;if(glue && $("shadeGlue").checked && !f.img) fill=id.startsWith("corner")?"#eef6ff":"#f3f4f6";
+    art.appendChild(shapeNode(s,{fill,"clip-path":`url(#clip_${id})`}));
+    if(f.img){const ib=imageBox(id,s),im=svgEl("image",{x:ib.x,y:ib.y,width:ib.w,height:ib.h,preserveAspectRatio:"none",href:f.img,"clip-path":`url(#clip_${id})`});if(f.rot)im.setAttribute("transform",`rotate(${f.rot} ${ib.cx} ${ib.cy})`);art.appendChild(im)}
+    const hit=shapeNode(s,{fill:"transparent","data-face":id,style:"cursor:pointer"});
+    if(f.img) hit.classList.add("gestureFace");
+    art.appendChild(hit);
+    if(id===selected)art.appendChild(shapeNode(s,{fill:"none",stroke:"#2563eb","stroke-width":"0.7","stroke-dasharray":"2 1","pointer-events":"none"}));
+  }
+
+  if($("showLabels").checked){
+    for(const[id,s]of Object.entries(g.shapes)){const[x,y,w,h]=bbox(s);guide.appendChild(svgEl("text",{x:x+w/2,y:y+h/2,"text-anchor":"middle","dominant-baseline":"middle",fill:"rgba(17,24,39,.55)","font-size":Math.max(2.2,Math.min(4,Math.min(w,h)*.12)),"font-weight":"600","pointer-events":"none",text:faces[id].name}))}
+  }
+
+  if($("showGuides").checked){
+    const cut={fill:"none",stroke:"#111","stroke-width":"0.35","stroke-linejoin":"round"},fold={fill:"none",stroke:"#777","stroke-width":"0.28","stroke-dasharray":"2.5 1.5"};
+    // main outer contour where actual full faces define the boundary
+    const p=[[g.xC,g.yT],[g.xR,g.yT],[g.xR,g.yF],[g.xR+g.D,g.yF],[g.xR+g.D,g.yBri],[g.xR,g.yBri],[g.xR,g.yBack],[g.xR+g.G,g.yBack+g.C],[g.xR+g.G,g.yBack+g.W-g.C],[g.xR,g.yBack+g.W],[g.xR,g.yBot+g.D],[g.xC,g.yBot+g.D],[g.xC,g.yBack+g.W],[g.xC-g.G,g.yBack+g.W-g.C],[g.xC-g.G,g.yBack+g.C],[g.xC,g.yBack],[g.xC,g.yBri],[g.x0,g.yBri],[g.x0,g.yF],[g.xC,g.yF],[g.xC,g.yT]];
+    guide.appendChild(svgEl("polyline",{points:p.map(a=>a.join(",")).join(" "),...cut}));
+    // explicit tab cut outlines
+    ["cornerL","cornerR","lowerL","lowerR"].forEach(id=>guide.appendChild(shapeNode(g.shapes[id],cut)));
+    // fold lines
+    [[g.xC,g.yF,g.xR,g.yF],[g.xC,g.yBri,g.xR,g.yBri],[g.xC,g.yBack,g.xR,g.yBack],[g.xC,g.yBack+g.W,g.xR,g.yBack+g.W],[g.xC,g.yF,g.xC,g.yBri],[g.xR,g.yF,g.xR,g.yBri],[g.xC,g.yBri,g.xC,g.yBri+g.D],[g.xR,g.yBri,g.xR,g.yBri+g.D],[g.xC,g.yBack,g.xC,g.yBack+g.W],[g.xR,g.yBack,g.xR,g.yBack+g.W]]
+      .forEach(a=>guide.appendChild(svgEl("line",{x1:a[0],y1:a[1],x2:a[2],y2:a[3],...fold})));
+    // fold lines of glue flaps at their bases, reduced to active attached lengths
+    guide.appendChild(svgEl("line",{x1:g.xC,y1:g.yBack+g.C,x2:g.xC,y2:g.yBack+g.W-g.C,...fold}));
+    guide.appendChild(svgEl("line",{x1:g.xR,y1:g.yBack+g.C,x2:g.xR,y2:g.yBack+g.W-g.C,...fold}));
+    guide.appendChild(svgEl("line",{x1:g.xC,y1:g.yBri+g.C,x2:g.xC,y2:g.yBri+g.D-g.C,...fold}));
+    guide.appendChild(svgEl("line",{x1:g.xR,y1:g.yBri+g.C,x2:g.xR,y2:g.yBri+g.D-g.C,...fold}));
+  }
+
+  const fits=g.netW+2*g.M<=g.pw&&g.netH+2*g.M<=g.ph,msg=$("fitMsg");msg.className=fits?"ok":"warn";
+  msg.textContent=fits?`1:1で収まります。展開図 ${g.netW.toFixed(1)} × ${g.netH.toFixed(1)} mm`:`1:1では用紙に収まりません。必要 ${ (g.netW+2*g.M).toFixed(1)} × ${(g.netH+2*g.M).toFixed(1)} mm`;
+  $("netSize").textContent=`展開図 ${g.netW.toFixed(1)} × ${g.netH.toFixed(1)} mm / 下段のりしろ ${g.G.toFixed(1)} mm / コーナー ${g.CW.toFixed(1)} mm`;
+  refreshButtons();
+}
+function selectFace(id,{focus=true}={}){selected=id;if(focus)viewMode="focus";sync();render()}
+function buildButtons(){const l=$("faceList"), q=$("quickFaceList");l.innerHTML="";if(q)q.innerHTML="";for(const[id,f]of Object.entries(faces)){const b=document.createElement("button");b.className="faceBtn";b.dataset.id=id;b.textContent=f.name;b.onclick=()=>selectFace(id,{focus:true});l.appendChild(b);if(q){const qb=document.createElement("button");qb.type="button";qb.className="quickFaceBtn";qb.dataset.id=id;qb.textContent=f.name;qb.onclick=()=>selectFace(id,{focus:true});q.appendChild(qb)}}}
+function refreshButtons(){document.querySelectorAll(".faceBtn").forEach(b=>{b.classList.toggle("selected",b.dataset.id===selected);b.classList.toggle("hasimg",!!faces[b.dataset.id].img);b.textContent=faces[b.dataset.id].name});document.querySelectorAll(".quickFaceBtn").forEach(b=>{b.classList.toggle("active",b.dataset.id===selected);b.classList.toggle("hasimg",!!faces[b.dataset.id].img);b.textContent=faces[b.dataset.id].name})}
+function sync(){const f=faces[selected];$("selectedFace").textContent=f.name;const qsf=$("quickSelectedFace"), qsf2=$("quickSelectedFace2");if(qsf)qsf.textContent=f.name;if(qsf2)qsf2.textContent=f.name;$("fitMode").value=f.fit;$("rotation").value=String(f.rot);$("bgColor").value=f.bg;$("faceName").value=f.name;$("zoom").value=f.zoom;$("offX").value=f.ox;$("offY").value=f.oy;$("zoomVal").textContent=f.zoom+"%";$("offXVal").textContent=f.ox+"%";$("offYVal").textContent=f.oy+"%";if($("quickFitMode"))$("quickFitMode").value=f.fit;if($("quickRotation"))$("quickRotation").value=String(f.rot);if($("quickZoom"))$("quickZoom").value=Math.round(f.zoom);if($("quickOffX"))$("quickOffX").value=Math.round(f.ox);if($("quickOffY"))$("quickOffY").value=Math.round(f.oy);if($("quickZoomVal"))$("quickZoomVal").textContent=Math.round(f.zoom)+"%";if($("quickOffXVal"))$("quickOffXVal").textContent=Math.round(f.ox)+"%";if($("quickOffYVal"))$("quickOffYVal").textContent=Math.round(f.oy)+"%";refreshButtons();syncViewButtons();syncDetailButton()}
+["boxW","boxH","boxD","glueW","glueInset","clearance","cornerW","taper","margin","paperW","paperH"].forEach(id=>$(id).addEventListener("input",()=>{syncGlueUI();render()}));
+$("autoGlue").addEventListener("change",()=>{syncGlueUI();render()});
+
+function syncGlueUI(){
+  const auto=$("autoGlue").checked;
+  $("glueW").disabled=auto;
+  if(auto){
+    const d=+$("boxD").value||34, inset=+$("glueInset").value||2;
+    $("glueW").value=Math.max(4,d-inset).toFixed(1);
+  }
+}
+$("paper").onchange=()=>{$("customPaper").style.display=$("paper").value==="custom"?"grid":"none";render()};
+["showLabels","showGuides","guidesTop","shadeGlue"].forEach(id=>$(id).onchange=render);
+$("imgFile").onchange=e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{Object.assign(faces[selected],{img:rd.result,iw:im.naturalWidth,ih:im.naturalHeight});viewMode="focus";render();sync()};im.src=rd.result};rd.readAsDataURL(file);e.target.value=""};
+$("removeImg").onclick=()=>{faces[selected].img=null;render();sync()};
+$("fitMode").onchange=e=>{faces[selected].fit=e.target.value;render()};$("rotation").onchange=e=>{faces[selected].rot=+e.target.value;render()};$("bgColor").oninput=e=>{faces[selected].bg=e.target.value;render()};$("faceName").oninput=e=>{faces[selected].name=e.target.value||"面";sync();render()};
+$("zoom").oninput=e=>{faces[selected].zoom=+e.target.value;$("zoomVal").textContent=e.target.value+"%";render()};$("offX").oninput=e=>{faces[selected].ox=+e.target.value;$("offXVal").textContent=e.target.value+"%";render()};$("offY").oninput=e=>{faces[selected].oy=+e.target.value;$("offYVal").textContent=e.target.value+"%";render()};
+if($("quickRemoveImg"))$("quickRemoveImg").onclick=()=>{faces[selected].img=null;render();sync()};
+if($("quickFitMode"))$("quickFitMode").onchange=e=>{faces[selected].fit=e.target.value;sync();render()};
+if($("quickRotation"))$("quickRotation").onchange=e=>{faces[selected].rot=+e.target.value;sync();render()};
+if($("quickZoom"))$("quickZoom").oninput=e=>{faces[selected].zoom=+e.target.value;$("quickZoomVal").textContent=e.target.value+"%";sync();render()};
+if($("quickOffX"))$("quickOffX").oninput=e=>{faces[selected].ox=+e.target.value;$("quickOffXVal").textContent=e.target.value+"%";sync();render()};
+if($("quickOffY"))$("quickOffY").oninput=e=>{faces[selected].oy=+e.target.value;$("quickOffYVal").textContent=e.target.value+"%";sync();render()};
+if($("quickSaveProject"))$("quickSaveProject").onclick=()=>$("saveProject").click();
+if($("quickExportPng"))$("quickExportPng").onclick=()=>$("exportPng").click();
+function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function svgString(){const c=$("sheet").cloneNode(true);c.querySelectorAll("[data-face]").forEach(n=>n.remove());c.querySelectorAll('[stroke="#2563eb"]').forEach(n=>n.remove());const[pw,ph]=paper();c.setAttribute("xmlns",NS);c.setAttribute("width",pw+"mm");c.setAttribute("height",ph+"mm");c.setAttribute("viewBox",`0 0 ${pw} ${ph}`);return new XMLSerializer().serializeToString(c)}
+$("exportSvg").onclick=()=>dl(new Blob([svgString()],{type:"image/svg+xml;charset=utf-8"}),"deckcase_v4_7.svg");
+$("exportPng").onclick=()=>{const[pw,ph]=paper(),dpi=300,pxW=Math.round(pw/25.4*dpi),pxH=Math.round(ph/25.4*dpi);let s=svgString().replace(/width="[^"]*"/,`width="${pxW}"`).replace(/height="[^"]*"/,`height="${pxH}"`);const u=URL.createObjectURL(new Blob([s],{type:"image/svg+xml"})),im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=pxW;c.height=pxH;const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,pxW,pxH);ctx.drawImage(im,0,0,pxW,pxH);c.toBlob(b=>dl(b,"deckcase_v4_7_300dpi.png"),"image/png");URL.revokeObjectURL(u)};im.src=u};
+$("printBtn").onclick=()=>window.print();
+$("saveProject").onclick=()=>{const n=nums(),data={version:4.7,box:{W:n.W,H:n.H,D:n.D},glue:{G:n.G,GI:n.GI,AG:n.AG,C:n.C,CW:n.TW,T:n.T},paper:{type:$("paper").value,W:+$("paperW").value,H:+$("paperH").value,M:n.M},options:{showLabels:$("showLabels").checked,showGuides:$("showGuides").checked,guidesTop:$("guidesTop").checked,shadeGlue:$("shadeGlue").checked},faces};dl(new Blob([JSON.stringify(data)],{type:"application/json"}),"deckcase_v4_7_project.json")};
+$("projectFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);$("boxW").value=d.box.W;$("boxH").value=d.box.H;$("boxD").value=d.box.D;if(d.glue){
+  $("glueW").value=d.glue.G ?? 32;
+  $("glueInset").value=d.glue.GI ?? 2;
+  $("autoGlue").checked=d.glue.AG ?? false;
+  $("clearance").value=d.glue.C ?? 0.5;
+  $("cornerW").value=d.glue.CW ?? 12;
+  $("taper").value=d.glue.T ?? 2;
+}$("paper").value=d.paper.type;$("paperW").value=d.paper.W;$("paperH").value=d.paper.H;$("margin").value=d.paper.M;$("customPaper").style.display=$("paper").value==="custom"?"grid":"none";if(d.options){for(const k of["showLabels","showGuides","guidesTop","shadeGlue"])if(k in d.options)$(k).checked=d.options[k]}for(const id of Object.keys(faces))if(d.faces&&d.faces[id])Object.assign(faces[id],d.faces[id]);syncGlueUI();sync();render()}catch{alert("読み込みに失敗しました")}};r.readAsText(f);e.target.value=""};
+$("resetBtn").onclick=()=>{if(confirm("初期化しますか？"))location.reload()};
+
+// --- v4: smartphone direct manipulation ---
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+const gesture={pointers:new Map(),face:null,startOx:0,startOy:0,startZoom:100,startX:0,startY:0,startDist:0,startMidX:0,startMidY:0,moved:false};
+function viewScale(){
+  const svg=$("sheet"), r=svg.getBoundingClientRect(), g=geom(), box=getDisplayBox(g);
+  return {sx:box.w/Math.max(1,r.width), sy:box.h/Math.max(1,r.height)};
+}
+function faceDims(id){const [x,y,w,h]=bbox(geom().shapes[id]);return {w,h};}
+function syncGestureControls(){
+  const f=faces[selected];
+  $("zoom").value=Math.round(f.zoom);$("offX").value=Math.round(f.ox);$("offY").value=Math.round(f.oy);
+  $("zoomVal").textContent=Math.round(f.zoom)+"%";$("offXVal").textContent=Math.round(f.ox)+"%";$("offYVal").textContent=Math.round(f.oy)+"%";
+}
+function pointerFace(e){const t=e.target.closest?.("[data-face]");return t?t.dataset.face:null;}
+function beginSingle(e,id){
+  gesture.face=id;gesture.startOx=faces[id].ox;gesture.startOy=faces[id].oy;gesture.startZoom=faces[id].zoom;
+  gesture.startX=e.clientX;gesture.startY=e.clientY;gesture.moved=false;
+}
+function beginPinch(){
+  const pts=[...gesture.pointers.values()]; if(pts.length<2)return;
+  const a=pts[0],b=pts[1];gesture.startDist=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y));
+  gesture.startMidX=(a.x+b.x)/2;gesture.startMidY=(a.y+b.y)/2;
+  gesture.startZoom=faces[selected].zoom;gesture.startOx=faces[selected].ox;gesture.startOy=faces[selected].oy;gesture.moved=true;
+}
+$("sheet").addEventListener("pointerdown",e=>{
+  const hitId=pointerFace(e);
+  const id=gesture.pointers.size ? (gesture.face||selected) : hitId;
+  if(!id)return;
+  // 画像がない面はAcode/ブラウザ標準のページスクロールを優先
+  if(gesture.pointers.size===0 && !faces[id].img)return;
+  e.preventDefault();
+  if(gesture.pointers.size===0 && (selected!==id || viewMode!=="focus")){
+    selected=id;viewMode="focus";sync();render();
+    return;
+  }
+  gesture.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  try{$("sheet").setPointerCapture(e.pointerId)}catch{}
+  if(gesture.pointers.size===1) beginSingle(e,id); else if(gesture.pointers.size===2) beginPinch();
+  $("sheet").classList.add("dragging");
+},{passive:false});
+$("sheet").addEventListener("pointermove",e=>{
+  if(!gesture.pointers.has(e.pointerId)||gesture.face!==selected)return;
+  e.preventDefault(); gesture.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  const {sx,sy}=viewScale(), {w,h}=faceDims(selected), f=faces[selected];
+  if(gesture.pointers.size>=2){
+    const pts=[...gesture.pointers.values()],a=pts[0],b=pts[1];
+    const dist=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y)), midX=(a.x+b.x)/2, midY=(a.y+b.y)/2;
+    f.zoom=clamp(gesture.startZoom*(dist/gesture.startDist),20,400);
+    f.ox=clamp(gesture.startOx+((midX-gesture.startMidX)*sx/w)*100,-100,100);
+    f.oy=clamp(gesture.startOy+((midY-gesture.startMidY)*sy/h)*100,-100,100);
+    gesture.moved=true;
+  }else{
+    const p=[...gesture.pointers.values()][0], dx=p.x-gesture.startX, dy=p.y-gesture.startY;
+    if(Math.hypot(dx,dy)>3)gesture.moved=true;
+    f.ox=clamp(gesture.startOx+(dx*sx/w)*100,-100,100);
+    f.oy=clamp(gesture.startOy+(dy*sy/h)*100,-100,100);
+  }
+  syncGestureControls();render();
+},{passive:false});
+function endPointer(e){
+  if(!gesture.pointers.has(e.pointerId))return;
+  gesture.pointers.delete(e.pointerId);
+  try{$("sheet").releasePointerCapture(e.pointerId)}catch{}
+  if(gesture.pointers.size===1){
+    const p=[...gesture.pointers.values()][0];gesture.startX=p.x;gesture.startY=p.y;gesture.startOx=faces[selected].ox;gesture.startOy=faces[selected].oy;
+  }else if(gesture.pointers.size===0){
+    $("sheet").classList.remove("dragging");gesture.face=null;
+  }
+}
+$("sheet").addEventListener("pointerup",endPointer);$("sheet").addEventListener("pointercancel",endPointer);
+$("sheet").addEventListener("click",e=>{const id=pointerFace(e);if(id){selected=id;viewMode="focus";sync();render()}});
+
+// --- v4.3: selected-face focus view ---
+const focusViewBtn=$("focusViewBtn"), allViewBtn=$("allViewBtn");
+function syncViewButtons(){
+  if(focusViewBtn){
+    focusViewBtn.classList.toggle("active",viewMode==="focus");
+    focusViewBtn.textContent="選択面を大きく";
+  }
+  if(allViewBtn) allViewBtn.classList.toggle("active",viewMode==="all");
+}
+if(focusViewBtn) focusViewBtn.addEventListener("click",()=>{viewMode="focus";syncViewButtons();render()});
+if(allViewBtn) allViewBtn.addEventListener("click",()=>{viewMode="all";syncViewButtons();render()});
+syncViewButtons();
+
+// --- v4.7: collapsible quick panel ---
+const mobileQuick=$("mobileQuick"), quickCollapseBtn=$("quickCollapseBtn");
+function syncQuickPanel(){
+  if(!mobileQuick || !quickCollapseBtn) return;
+  const collapsed=mobileQuick.classList.contains("collapsed");
+  quickCollapseBtn.textContent=collapsed?"開く":"たたむ";
+  quickCollapseBtn.setAttribute("aria-expanded", collapsed?"false":"true");
+}
+if(quickCollapseBtn) quickCollapseBtn.addEventListener("click",()=>{mobileQuick.classList.toggle("collapsed");syncQuickPanel();});
+syncQuickPanel();
+
+// --- v4.6: mobile quick editor / detail sheet ---
+const detailToggleBtn=$("detailToggleBtn"), sidebarCloseBtn=$("sidebarCloseBtn");
+function syncDetailButton(){
+  const open=document.body.classList.contains("mobilePanelOpen");
+  if(detailToggleBtn){detailToggleBtn.textContent=open?"詳細を閉じる":"詳細設定";detailToggleBtn.classList.toggle("active",open)}
+}
+function setMobilePanel(open){
+  if(!window.matchMedia("(max-width:900px)").matches)return;
+  document.body.classList.toggle("mobilePanelOpen",open);
+  syncDetailButton();
+}
+if(detailToggleBtn)detailToggleBtn.addEventListener("click",()=>setMobilePanel(!document.body.classList.contains("mobilePanelOpen")));
+if(sidebarCloseBtn)sidebarCloseBtn.addEventListener("click",()=>setMobilePanel(false));
+document.addEventListener("click",e=>{if(!document.body.classList.contains("mobilePanelOpen"))return; if(e.target===document.body||e.target===document.documentElement)return;});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")setMobilePanel(false)});
+
+// --- v4.2: large mobile workspace ---
+const workspaceBtn=$("workspaceToggle");
+function syncWorkspaceButton(){
+  if(!workspaceBtn)return;
+  const on=document.body.classList.contains("workspaceMode");
+  workspaceBtn.textContent=on?"✕ 編集画面を閉じる":"⛶ 作業スペース拡大";
+  workspaceBtn.setAttribute("aria-pressed",on?"true":"false");
+}
+if(workspaceBtn){
+  workspaceBtn.addEventListener("click",()=>{
+    setMobilePanel(false);
+    document.body.classList.toggle("workspaceMode");
+    syncWorkspaceButton();
+    requestAnimationFrame(render);
+  });
+}
+syncWorkspaceButton();
+
+// --- v4: compact mobile accordions ---
+function setupAccordions(){
+  const sections=[...document.querySelectorAll(".sidebar .section")];
+  sections.forEach((sec,i)=>{
+    const h=sec.querySelector("h2"); if(!h||h.dataset.ready)return;h.dataset.ready="1";
+    const ico=document.createElement("span");ico.className="sectionToggle";ico.textContent="⌄";h.appendChild(ico);
+    h.addEventListener("click",()=>{if(window.matchMedia("(max-width:900px)").matches)sec.classList.toggle("collapsed")});
+    if(window.matchMedia("(max-width:900px)").matches && ![4,5].includes(i))sec.classList.add("collapsed");
+  });
+}
+setupAccordions();
+buildButtons();syncGlueUI();syncDetailButton();sync();render();
+let resizeTimer;window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!window.matchMedia("(max-width:900px)").matches)document.body.classList.remove("mobilePanelOpen");syncDetailButton();render()},120)});
+</script>
+</body>
+</html>
